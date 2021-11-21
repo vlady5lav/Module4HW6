@@ -30,66 +30,54 @@ namespace ModuleHW.StartApplication
                     .AddOptions()
                     .BuildServiceProvider();
 
-                using (var db = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
+                using (var db = serviceProvider?.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
                 {
-                    db.Database.Migrate();
-                    db.SaveChanges();
+                    db?.Database?.Migrate();
+                    db?.SaveChanges();
                 }
 
-                using (var db = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
+                using (var db = serviceProvider?.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
                 {
                     Header(1);
 
-                    var songsArtistAlive = db.Songs
+                    var songsArtistAlive = db?.Songs
                         .Where(s => s.GenreId != default)
-                        .Join(
-                        db.ArtistSongs,
-                        s => s.Id,
-                        sa => sa.SongId,
-                        (s, sa) => new
-                        {
-                            s.Title,
-                            Genre = s.Genre.Title,
-                            s.ReleasedDate,
-                            s.Duration,
-                            sa.Artist,
-                        })
+                        .Where(s => !s.ArtistSongs.Select(a => a.Artist.IsAlived).Contains(false))
                         .ToList()
                         .GroupBy(s => s.Title)
                         .Select(s => new
                         {
                             Title = s.Key,
-                            Genre = s.Select(s => s.Genre).FirstOrDefault(),
+                            Genre = s.Select(s => s.Genre.Title).FirstOrDefault(),
                             ReleasedDate = s.Select(s => s.ReleasedDate).FirstOrDefault(),
                             Duration = s.Select(s => s.Duration).FirstOrDefault(),
-                            Artist = s.Select(s => s.Artist),
+                            Artist = s.Select(s => s.ArtistSongs.Select(sa => sa.Artist)).FirstOrDefault(),
                         })
-                        .Where(a => !a.Artist.Select(a => a.IsAlived.Value).Contains(false))
                         .ToList();
 
                     foreach (var t in songsArtistAlive)
                     {
-                        Console.WriteLine($"\n--------- Song Title: {t?.Title} ---------\n\n" +
-                            $"Song Genre: {t?.Genre}\n" +
-                            $"Song Released Date: {t?.ReleasedDate.ToShortDateString()}\n" +
+                        Console.WriteLine($"\n--------- Song Title: {t?.Title ?? "[EMPTY]"} ---------\n\n" +
+                            $"Song Genre: {t?.Genre ?? "[EMPTY]"}\n" +
+                            $"Song Released Date: {t?.ReleasedDate.ToShortDateString() ?? "EMPTY"}\n" +
                             $"Song Duration (HH:mm:ss): {TimeSpan.FromSeconds(t?.Duration ?? 0):hh\\:mm\\:ss}");
 
-                        if (t.Artist.Count() == 1)
+                        if (t?.Artist?.Count() == 1)
                         {
                             Console.WriteLine("\nArtist Details:");
                         }
                         else
                         {
-                            Console.WriteLine($"\nArtists Details ({t.Artist.Count()}):");
+                            Console.WriteLine($"\nArtists Details ({t?.Artist?.Count() ?? 0}):");
                         }
 
                         var a = 1;
 
-                        foreach (var s in t.Artist)
+                        foreach (var s in t?.Artist)
                         {
                             Console.WriteLine($"\nArtist {a++}:\n" +
-                                $"Artist Name: {s?.Name}\n" +
-                                $"Artist Date of Birth: {s?.DateOfBirth.ToShortDateString()}");
+                                $"Artist Name: {s?.Name ?? "[EMPTY]"}\n" +
+                                $"Artist Date of Birth: {s?.DateOfBirth.ToShortDateString() ?? "[EMPTY]"}");
                             Print("Artist Date of Death: ", s?.DateOfDeath?.ToShortDateString());
                             Print("Artist Instagram Url: ", s?.InstagramUrl);
                         }
@@ -98,11 +86,11 @@ namespace ModuleHW.StartApplication
                     }
                 }
 
-                using (var db = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
+                using (var db = serviceProvider?.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
                 {
                     Header(2);
 
-                    var genres = db.Songs
+                    var genres = db?.Songs
                         .GroupBy(s => s.Genre.Title)
                         .Select(g => new
                         {
@@ -118,22 +106,22 @@ namespace ModuleHW.StartApplication
                         Print($"Count of Songs with Genre Title \"", t?.Title?.ToString(), "\": ", t?.Count.ToString());
                     }
 
-                    Console.WriteLine($"\nCount of Songs without Genre: {genres.Where(g => g.Title == default).Select(g => g.Count).FirstOrDefault()}");
+                    Console.WriteLine($"\nCount of Songs without Genre: {genres?.Where(g => g?.Title == default).Select(g => g?.Count)?.FirstOrDefault()}");
                 }
 
-                using (var db = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
+                using (var db = serviceProvider?.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
                 {
                     Header(3);
 
-                    var songsOld = db.Songs
-                        .Where(s => s.ReleasedDate < db.Artists.Min(a => a.DateOfBirth))
+                    var songsOld = db?.Songs
+                        .Where(s => s.ReleasedDate < db.Artists.Max(a => a.DateOfBirth))
                         .ToList();
 
                     foreach (var s in songsOld)
                     {
-                        Console.WriteLine($"\n--------- Song Title: {s?.Title} ---------\n\n" +
-                            $"Song Genre: {s?.Genre?.Title}\n" +
-                            $"Song Released Date: {s?.ReleasedDate.ToShortDateString()}\n" +
+                        Console.WriteLine($"\n--------- Song Title: {s?.Title ?? "[EMPTY]"} ---------\n\n" +
+                            $"Song Genre: {s?.Genre?.Title ?? "[EMPTY]"}\n" +
+                            $"Song Released Date: {s?.ReleasedDate.ToShortDateString() ?? "[EMPTY]"}\n" +
                             $"Song Duration (HH:mm:ss): {TimeSpan.FromSeconds(s?.Duration ?? 0):hh\\:mm\\:ss}");
 
                         Console.WriteLine("\n------- ------- ------- ------- -------");
@@ -147,13 +135,11 @@ namespace ModuleHW.StartApplication
             }
         }
 
-        public void Print(string s, params string[] i)
+        public void Print(params string[] s)
         {
-            if (s != default && !i.Contains(default))
+            if (!s.Contains(default))
             {
-                Console.Write(s);
-
-                foreach (var str in i)
+                foreach (var str in s)
                 {
                     Console.Write(str);
                 }
