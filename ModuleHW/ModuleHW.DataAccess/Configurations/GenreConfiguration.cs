@@ -13,9 +13,11 @@ namespace ModuleHW.DataAccess.Configurations
         {
             builder.ToTable("Genre").HasKey(g => g.Id);
 
-            builder.Property(g => g.Id).HasColumnName("GenreId").ValueGeneratedOnAdd();
+            builder.Property(g => g.Id).HasColumnName("GenreId")
+                .ValueGeneratedOnAdd();
 
-            builder.Property(g => g.Title).HasColumnName("Title").IsRequired();
+            builder.Property(g => g.Title).HasColumnName("Title")
+                .IsRequired();
 
             builder.HasData(new List<Genre>()
             {

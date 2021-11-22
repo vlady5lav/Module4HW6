@@ -106,7 +106,12 @@ namespace ModuleHW.StartApplication
                         Print($"Count of Songs with Genre Title \"", t?.Title?.ToString(), "\": ", t?.Count.ToString());
                     }
 
-                    Console.WriteLine($"\nCount of Songs without Genre: {genres?.Where(g => g?.Title == default).Select(g => g?.Count)?.FirstOrDefault()}");
+                    var songsCountNoGenre = genres?
+                        .Where(g => g?.Title == default)
+                        .Select(g => g?.Count)?
+                        .FirstOrDefault();
+
+                    Console.WriteLine($"\nCount of Songs without Genre: {songsCountNoGenre}");
                 }
 
                 using (var db = serviceProvider?.CreateScope().ServiceProvider.GetRequiredService<ApplicationContext>())
@@ -139,12 +144,7 @@ namespace ModuleHW.StartApplication
         {
             if (!s.Contains(default))
             {
-                foreach (var str in s)
-                {
-                    Console.Write(str);
-                }
-
-                Console.WriteLine(string.Empty);
+                Console.WriteLine(string.Join(string.Empty, s));
             }
         }
 

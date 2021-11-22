@@ -14,14 +14,21 @@ namespace ModuleHW.DataAccess.Configurations
         {
             builder.ToTable("Song").HasKey(s => s.Id);
 
-            builder.Property(s => s.Id).HasColumnName("SongId").ValueGeneratedOnAdd();
+            builder.Property(s => s.Id).HasColumnName("SongId")
+                .ValueGeneratedOnAdd();
 
-            builder.Property(s => s.Title).HasColumnName("Title").IsRequired();
-            builder.Property(s => s.Duration).HasColumnName("Duration").IsRequired();
-            builder.Property(s => s.ReleasedDate).HasColumnName("ReleasedDate").HasColumnType("date").IsRequired();
+            builder.Property(s => s.Title).HasColumnName("Title")
+                .IsRequired();
+
+            builder.Property(s => s.Duration).HasColumnName("Duration")
+                .IsRequired();
+
+            builder.Property(s => s.ReleasedDate).HasColumnName("ReleasedDate")
+                .HasColumnType("date").IsRequired();
 
             builder.HasOne(s => s.Genre).WithMany(g => g.Songs)
-                .HasForeignKey(s => s.GenreId).OnDelete(DeleteBehavior.Cascade).IsRequired(false);
+                .HasForeignKey(s => s.GenreId).OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
             builder.HasData(new List<Song>()
             {

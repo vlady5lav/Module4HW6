@@ -13,10 +13,12 @@ namespace ModuleHW.DataAccess.Configurations
         {
             builder.ToTable("ArtistSong").HasKey(a => a.Id);
 
-            builder.Property(a => a.Id).HasColumnName("ArtistSongId").ValueGeneratedOnAdd();
+            builder.Property(a => a.Id).HasColumnName("ArtistSongId")
+                .ValueGeneratedOnAdd();
 
             builder.HasOne(a => a.Artist).WithMany(a => a.ArtistSongs)
                 .HasForeignKey(a => a.ArtistId).OnDelete(DeleteBehavior.Cascade);
+
             builder.HasOne(a => a.Song).WithMany(s => s.ArtistSongs)
                 .HasForeignKey(a => a.SongId).OnDelete(DeleteBehavior.Cascade);
 
