@@ -14,10 +14,10 @@ namespace ModuleHW.DataAccess
         {
         }
 
-        public DbSet<Artist> Artists { get; set; }
-        public DbSet<Genre> Genres { get; set; }
-        public DbSet<Song> Songs { get; set; }
-        public DbSet<ArtistSong> ArtistSongs { get; set; }
+        public virtual DbSet<Artist> Artists { get; set; }
+        public virtual DbSet<Genre> Genres { get; set; }
+        public virtual DbSet<Song> Songs { get; set; }
+        public virtual DbSet<ArtistSong> ArtistSongs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

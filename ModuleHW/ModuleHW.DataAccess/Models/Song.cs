@@ -16,6 +16,6 @@ namespace ModuleHW.DataAccess.Models
         public DateTime ReleasedDate { get; set; }
         public int? GenreId { get; set; }
         public virtual Genre Genre { get; set; }
-        public virtual List<ArtistSong> ArtistSongs { get; set; }
+        public virtual ICollection<ArtistSong> ArtistSongs { get; set; }
     }
 }

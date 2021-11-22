@@ -11,6 +11,6 @@ namespace ModuleHW.DataAccess.Models
 
         public int Id { get; set; }
         public string Title { get; set; }
-        public virtual List<Song> Songs { get; set; }
+        public virtual ICollection<Song> Songs { get; set; }
     }
 }

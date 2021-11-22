@@ -18,6 +18,6 @@ namespace ModuleHW.DataAccess.Models
         public string Phone { get; set; }
         public string Email { get; set; }
         public string InstagramUrl { get; set; }
-        public virtual List<ArtistSong> ArtistSongs { get; set; }
+        public virtual ICollection<ArtistSong> ArtistSongs { get; set; }
     }
 }
