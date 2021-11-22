@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using ModuleHW.DataAccess;
+using ModuleHW.DataAccess.Models;
 
 namespace ModuleHW.StartApplication
 {
@@ -43,46 +44,11 @@ namespace ModuleHW.StartApplication
                     var songsArtistAlive = db?.Songs
                         .Where(s => s.GenreId != default)
                         .Where(s => s.ArtistSongs.All(a => a.Artist.IsAlived == true))
-                        .ToList()
-                        .GroupBy(s => s.Title)
-                        .Select(s => new
-                        {
-                            Title = s.Key,
-                            Genre = s.Select(s => s.Genre.Title).FirstOrDefault(),
-                            ReleasedDate = s.Select(s => s.ReleasedDate).FirstOrDefault(),
-                            Duration = s.Select(s => s.Duration).FirstOrDefault(),
-                            Artist = s.Select(s => s.ArtistSongs.Select(sa => sa.Artist)).FirstOrDefault(),
-                        })
                         .ToList();
 
-                    foreach (var t in songsArtistAlive)
+                    foreach (var s in songsArtistAlive)
                     {
-                        Console.WriteLine($"\n--------- Song Title: {t?.Title ?? "[EMPTY]"} ---------\n\n" +
-                            $"Song Genre: {t?.Genre ?? "[EMPTY]"}\n" +
-                            $"Song Released Date: {t?.ReleasedDate.ToShortDateString() ?? "EMPTY"}\n" +
-                            $"Song Duration (HH:mm:ss): {TimeSpan.FromSeconds(t?.Duration ?? 0):hh\\:mm\\:ss}");
-
-                        if (t?.Artist?.Count() == 1)
-                        {
-                            Console.WriteLine("\nArtist Details:");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"\nArtists Details ({t?.Artist?.Count() ?? 0}):");
-                        }
-
-                        var a = 1;
-
-                        foreach (var s in t?.Artist)
-                        {
-                            Console.WriteLine($"\nArtist {a++}:\n" +
-                                $"Artist Name: {s?.Name ?? "[EMPTY]"}\n" +
-                                $"Artist Date of Birth: {s?.DateOfBirth.ToShortDateString() ?? "[EMPTY]"}");
-                            Print("Artist Date of Death: ", s?.DateOfDeath?.ToShortDateString());
-                            Print("Artist Instagram Url: ", s?.InstagramUrl);
-                        }
-
-                        Console.WriteLine("\n------- ------- ------- ------- -------");
+                        SongInfo(s);
                     }
                 }
 
@@ -107,9 +73,9 @@ namespace ModuleHW.StartApplication
                     }
 
                     var songsCountNoGenre = genres?
-                        .Where(g => g?.Title == default)
-                        .Select(g => g?.Count)?
-                        .FirstOrDefault();
+                        .Where(g => g.Title == default)
+                        .Select(g => g.Count)
+                        .SingleOrDefault();
 
                     Console.WriteLine($"\nCount of Songs without Genre: {songsCountNoGenre}");
                 }
@@ -124,12 +90,7 @@ namespace ModuleHW.StartApplication
 
                     foreach (var s in songsOld)
                     {
-                        Console.WriteLine($"\n--------- Song Title: {s?.Title ?? "[EMPTY]"} ---------\n\n" +
-                            $"Song Genre: {s?.Genre?.Title ?? "[EMPTY]"}\n" +
-                            $"Song Released Date: {s?.ReleasedDate.ToShortDateString() ?? "[EMPTY]"}\n" +
-                            $"Song Duration (HH:mm:ss): {TimeSpan.FromSeconds(s?.Duration ?? 0):hh\\:mm\\:ss}");
-
-                        Console.WriteLine("\n------- ------- ------- ------- -------");
+                        SongInfo(s);
                     }
                 }
             }
@@ -150,9 +111,64 @@ namespace ModuleHW.StartApplication
 
         public void Header(int s)
         {
-            Console.WriteLine("\n\n-----------------------------------------------------");
+            Console.WriteLine("\n-----------------------------------------------------");
             Console.WriteLine($"---------------------- Query {s} ----------------------");
             Console.WriteLine("-----------------------------------------------------\n");
+        }
+
+        public void SongInfo(Song s)
+        {
+            var artists = s?.ArtistSongs?.Where(sa => sa?.SongId == s?.Id).Select(a => a?.Artist).ToList();
+
+            var artistsName = string.Join(", ", artists?.Select(a => a.Name).OrderBy(a => a));
+
+            var artistsCount = artists.Count();
+
+            Console.WriteLine(
+                "\n" +
+                "-------- -------- ------- -------- --------");
+
+            Console.WriteLine(
+                $"\n" +
+                $"  Song : {artistsName ?? "[Unknown]"} - {s?.Title ?? "[Unknown]"}" +
+                $"\n");
+
+            Console.WriteLine(
+                $"  -----------------------------------------" +
+                $"\n" +
+                $"  | Title: {s?.Title ?? "[Unknown]"}" +
+                $"\n" +
+                $"  |    Genre: {s?.Genre?.Title ?? "[EMPTY]"}" +
+                $"\n" +
+                $"  |    Released Date: {s?.ReleasedDate.ToShortDateString() ?? "EMPTY"}" +
+                $"\n" +
+                $"  |    Duration (hh:mm:ss): {TimeSpan.FromSeconds(s?.Duration ?? 0):hh\\:mm\\:ss}" +
+                $"\n" +
+                $"  |    Artists Count: {artistsCount}" +
+                $"\n" +
+                $"  -----------------------------------------");
+
+            var i = 1;
+
+            foreach (var a in artists)
+            {
+                Console.WriteLine(
+                    $"  -----------------------------------------" +
+                    $"\n" +
+                    $"  | Artist {i++}" +
+                    $"\n" +
+                    $"  |    Name: {a?.Name ?? "[EMPTY]"}" +
+                    $"\n" +
+                    $"  |    Date of Birth: {a?.DateOfBirth.ToShortDateString() ?? "[EMPTY]"}" +
+                    $"\n" +
+                    $"  |    IsAlive: {a?.IsAlived.ToString() ?? "[EMPTY]"}");
+
+                Print("  |    Date of Death: ", a?.DateOfDeath?.ToShortDateString());
+                Print("  |    Phone Number: +", a?.Phone);
+                Print("  |    E-Mail Adress: ", a?.Email);
+                Print("  |    Instagram Url: ", a?.InstagramUrl);
+                Console.WriteLine($"  -----------------------------------------");
+            }
         }
     }
 }
