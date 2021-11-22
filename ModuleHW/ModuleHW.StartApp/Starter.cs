@@ -42,7 +42,7 @@ namespace ModuleHW.StartApplication
 
                     var songsArtistAlive = db?.Songs
                         .Where(s => s.GenreId != default)
-                        .Where(s => !s.ArtistSongs.Select(a => a.Artist.IsAlived).Contains(false))
+                        .Where(s => s.ArtistSongs.All(a => a.Artist.IsAlived == true))
                         .ToList()
                         .GroupBy(s => s.Title)
                         .Select(s => new
