@@ -122,7 +122,7 @@ namespace ModuleHW.StartApplication
 
             var artistsName = string.Join(", ", artists?.Select(a => a.Name).OrderBy(a => a));
 
-            var artistsCount = artists.Count();
+            var artistsCount = artists.Count;
 
             Console.WriteLine(
                 "\n" +
